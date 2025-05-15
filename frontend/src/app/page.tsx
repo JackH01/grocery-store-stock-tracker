@@ -1,16 +1,52 @@
+// Tell next.js that this file is a client component - otherwise
+// it will assume it is a server component and we can't use
+// useState without getting an error.
+"use client"
 import { useState } from 'react';
 
-function ProductCategoryRow({ category }) {
+interface Product {
+  category: string;
+  price: string;
+  stocked: boolean;
+  name: string;
+}
+
+type ProductCategoryRowProps = {
+  category: string;
+}
+
+type ProductRowProps = {
+  product: Product;
+}
+
+type ProductTableProps = {
+  products: Product[];
+  filterText: string;
+  inStockOnly: boolean;
+}
+
+type SearchBarProps = {
+  filterText: string;
+  inStockOnly: boolean;
+  onFilterTextChange: (filterText: string) => void;
+  onInStockOnlyChange: (inStockOnly: boolean) => void;
+}
+
+type FilterableProductTableProps = {
+  products: Product[];
+}
+
+function ProductCategoryRow({ category }: ProductCategoryRowProps) {
   return (
     <tr>
-      <th colSpan="2">
+      <th colSpan={2}>
         {category}
       </th>
     </tr>
   );
 }
 
-function ProductRow({ product }) {
+function ProductRow({ product }: ProductRowProps) {
   const name = product.stocked ? product.name :
     <span style={{ color: 'red' }}>
       {product.name}
@@ -24,9 +60,9 @@ function ProductRow({ product }) {
   );
 }
 
-function ProductTable({ products, filterText, inStockOnly }) {
-  const rows = [];
-  let lastCategory = null;
+function ProductTable({ products, filterText, inStockOnly }: ProductTableProps) {
+  const rows: React.ReactElement[] = [];
+  let lastCategory: string = "";
 
   products.forEach((product) => {
     if (
@@ -72,7 +108,7 @@ function SearchBar({
   inStockOnly,
   onFilterTextChange,
   onInStockOnlyChange
-}) {
+}: SearchBarProps) {
   return (
     <form>
       <input 
@@ -94,7 +130,7 @@ function SearchBar({
   );
 }
 
-function FilterableProductTable({ products }) {
+function FilterableProductTable({ products }: FilterableProductTableProps) {
   const [filterText, setFilterText] = useState("");
   const [inStockOnly, setInStockOnly] = useState(false);
 
@@ -113,7 +149,7 @@ function FilterableProductTable({ products }) {
   );
 }
 
-const PRODUCTS = [
+const PRODUCTS: Product[] = [
   {category: "Fruits", price: "$1", stocked: true, name: "Apple"},
   {category: "Fruits", price: "$1", stocked: true, name: "Dragonfruit"},
   {category: "Fruits", price: "$2", stocked: false, name: "Passionfruit"},

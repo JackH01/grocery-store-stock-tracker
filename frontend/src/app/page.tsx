@@ -3,24 +3,19 @@
 // useState without getting an error.
 "use client"
 import { useState } from 'react';
-
-interface Product {
-  category: string;
-  price: string;
-  stocked: boolean;
-  name: string;
-}
+// import * as AddEditModal from "./components/AddEditModal/AddEditModal";
+import AddEditModal, {ProductData} from "./components/AddEditModal/AddEditModal";
 
 type ProductCategoryRowProps = {
   category: string;
 }
 
 type ProductRowProps = {
-  product: Product;
+  product: ProductData;
 }
 
 type ProductTableProps = {
-  products: Product[];
+  products: ProductData[];
   filterText: string;
   inStockOnly: boolean;
 }
@@ -33,7 +28,7 @@ type SearchBarProps = {
 }
 
 type FilterableProductTableProps = {
-  products: Product[];
+  products: ProductData[];
 }
 
 function ProductCategoryRow({ category }: ProductCategoryRowProps) {
@@ -47,7 +42,7 @@ function ProductCategoryRow({ category }: ProductCategoryRowProps) {
 }
 
 function ProductRow({ product }: ProductRowProps) {
-  const name = product.stocked ? product.name :
+  const name = product.stocked ? product.name : 
     <span style={{ color: 'red' }}>
       {product.name}
     </span>;
@@ -58,6 +53,64 @@ function ProductRow({ product }: ProductRowProps) {
       <td>{product.price}</td>
     </tr>
   );
+}
+
+function AddButton() {
+  const [isAddEditModalOpen, setAddEditModalOpen] = 
+    useState<boolean>(false);
+
+  // TODO fetch data from API for edit.
+  const defaultAddEditModalData: ProductData = {
+    category: "Fruits",
+    price: 0.01,
+    stocked: false,
+    name: "",
+  }
+
+  const [addEditFormData, setAddEditFormData] = 
+    useState<ProductData>(defaultAddEditModalData)
+
+  const handleOpenAddEditModal = () => {
+    setAddEditModalOpen(true);
+  }
+
+  const handleCloseAddEditModal = () => {
+    setAddEditModalOpen(false);
+  }
+
+  const handleFormSubmit = (data: ProductData): void => {
+    setAddEditFormData(data);
+    handleCloseAddEditModal();
+  }
+
+  const emptyProduct: ProductData = {
+    category: "Fruits", price:  0.01, stocked: true, name: ""
+  }
+
+  return (
+    <>
+      <div>
+        <button onClick={handleOpenAddEditModal}>Add Product</button>
+      </div>
+
+      {addEditFormData && addEditFormData.name && (
+        <div className="msg-box msg-box--success">
+          Added product: <b>{addEditFormData.name}</b>
+          (Price <b>{addEditFormData.price}</b>, 
+          Category: <b>{addEditFormData.category}</b>, 
+          {addEditFormData.stocked ? "": "not "} in stock)
+        </div>
+      )}
+
+      <AddEditModal
+        isOpen={isAddEditModalOpen}
+        product={emptyProduct}
+        onSubmit={handleFormSubmit}
+        onClose={handleCloseAddEditModal}
+      />
+    </>
+    
+  )
 }
 
 function ProductTable({ products, filterText, inStockOnly }: ProductTableProps) {
@@ -141,6 +194,7 @@ function FilterableProductTable({ products }: FilterableProductTableProps) {
         inStockOnly={inStockOnly} 
         onFilterTextChange={setFilterText}
         onInStockOnlyChange={setInStockOnly} />
+      <AddButton />
       <ProductTable 
         products={products} 
         filterText={filterText}
@@ -149,13 +203,13 @@ function FilterableProductTable({ products }: FilterableProductTableProps) {
   );
 }
 
-const PRODUCTS: Product[] = [
-  {category: "Fruits", price: "$1", stocked: true, name: "Apple"},
-  {category: "Fruits", price: "$1", stocked: true, name: "Dragonfruit"},
-  {category: "Fruits", price: "$2", stocked: false, name: "Passionfruit"},
-  {category: "Vegetables", price: "$2", stocked: true, name: "Spinach"},
-  {category: "Vegetables", price: "$4", stocked: false, name: "Pumpkin"},
-  {category: "Vegetables", price: "$1", stocked: true, name: "Peas"}
+const PRODUCTS: ProductData[] = [
+  {category: "Fruits", price:  1.00, stocked: true, name: "Apple"},
+  {category: "Fruits", price: 1.00, stocked: true, name: "Dragonfruit"},
+  {category: "Fruits", price: 2.49, stocked: false, name: "Passionfruit"},
+  {category: "Vegetables", price: 2.00, stocked: true, name: "Spinach"},
+  {category: "Vegetables", price: 4.99, stocked: false, name: "Pumpkin"},
+  {category: "Vegetables", price: 0.99, stocked: true, name: "Peas"}
 ];
 
 export default function App() {

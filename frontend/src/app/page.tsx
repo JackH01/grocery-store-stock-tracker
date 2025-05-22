@@ -3,8 +3,26 @@
 // useState without getting an error.
 "use client"
 import { useState } from 'react';
-// import * as AddEditModal from "./components/AddEditModal/AddEditModal";
-import AddEditModal, {ProductData} from "./components/AddEditModal/AddEditModal";
+// import AddEditModal, {ProductData} from "./components/AddEditModal/AddEditModal";
+
+import Button from "react-bootstrap/Button";
+import Modal from "react-bootstrap/Modal";
+import Form from "react-bootstrap/Form";
+import InputGroup from "react-bootstrap/InputGroup";
+
+
+// TODO switch to bootstrap modals as the css seems to break mine.
+
+
+import 'bootstrap/dist/css/bootstrap.min.css';
+// import "./components/Modal/Modal.css";
+
+export interface ProductData {
+  category: "Fruits" | "Vegetables";
+  price: number;
+  stocked: boolean;
+  name: string;
+}
 
 type ProductCategoryRowProps = {
   category: string;
@@ -84,13 +102,14 @@ function AddButton() {
   }
 
   const emptyProduct: ProductData = {
-    category: "Fruits", price:  0.01, stocked: true, name: ""
+    category: "Fruits", price: 0.01, stocked: true, name: ""
   }
 
   return (
     <>
       <div>
-        <button onClick={handleOpenAddEditModal}>Add Product</button>
+        <Button variant="outline-secondary" onClick={handleOpenAddEditModal}>Add Product</Button>
+        {/* <button onClick={handleOpenAddEditModal}>Add Product</button> */}
       </div>
 
       {addEditFormData && addEditFormData.name && (
@@ -101,15 +120,78 @@ function AddButton() {
           {addEditFormData.stocked ? "": "not "} in stock)
         </div>
       )}
+      
+      <Modal show={isAddEditModalOpen} onHide={handleCloseAddEditModal}>
+        
+        <Modal.Header closeButton>
+          <Modal.Title>Add a Product</Modal.Title>
+        </Modal.Header>
 
-      <AddEditModal
-        isOpen={isAddEditModalOpen}
-        product={emptyProduct}
-        onSubmit={handleFormSubmit}
-        onClose={handleCloseAddEditModal}
-      />
+        <Modal.Body>
+          <Form.Group>
+            <Form.Label>Product Name</Form.Label>
+            <Form.Control 
+              placeholder="E.g. Apple" 
+              aria-label="Product name input" 
+              defaultValue="Cantalope"
+              autoFocus/>
+          </Form.Group>
+
+          <Form.Group>
+            <Form.Label>Price</Form.Label>
+            <InputGroup>
+              <InputGroup.Text>£</InputGroup.Text>
+              <Form.Control 
+                type="number"
+                min="0"
+                step=".01"
+                placeholder="0.99" 
+                aria-label="Product price input"
+                defaultValue="4.99"/>
+            </InputGroup>
+          </Form.Group>
+
+          <Form.Group>
+            <Form.Label>Category</Form.Label>
+            <Form.Select defaultValue="Vegetables" aria-label="Product category select">
+              {/* TODO allow user to create category and read these
+              from db */}
+              <option value="Fruits">Fruits</option>
+              <option value="Vegetables">Vegetables</option>
+            </Form.Select>
+          </Form.Group>
+
+          <Form.Group>
+            <Form.Check 
+              type="checkbox" 
+              label="In stock" 
+              defaultChecked={true}
+              aria-label="In stock checknox"/>
+          </Form.Group>
+          
+
+          
+          
+        </Modal.Body>
+
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseAddEditModal}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleCloseAddEditModal}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+
+      </Modal>
+
     </>
-    
+  //   <AddEditModal
+  //   isOpen={isAddEditModalOpen}
+  //   product={emptyProduct}
+  //   onSubmit={handleFormSubmit}
+  //   onClose={handleCloseAddEditModal}
+  // />
   )
 }
 

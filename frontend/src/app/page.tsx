@@ -20,7 +20,12 @@ export interface ProductData {
   name: string;
 }
 
-
+const emptyProduct: ProductData = {
+  category: "Fruits",
+  price: 0.01,
+  stocked: false,
+  name: "",
+}
 
 type ProductCategoryRowProps = {
   category: string;
@@ -50,6 +55,7 @@ type FilterableProductTableProps = {
 type AddEditButtonProps = {
   product: ProductData;
   handleSubmit: (product: ProductData) => void;
+  isAdd: boolean;
 }
 
 function ProductCategoryRow({ category }: ProductCategoryRowProps) {
@@ -68,31 +74,33 @@ function ProductRow({ product }: ProductRowProps) {
       {product.name}
     </span>;
 
+  function handleSubmit(product: ProductData) {
+    // TODO change when we link to backend.
+    console.log("Edit product: " + product.name);
+}
+
   return (
     <tr>
       <td>{name}</td>
       <td>{product.price}</td>
+      <td><AddEditButton
+        product={product}
+        handleSubmit={handleSubmit}
+        isAdd={false}
+      /></td>
     </tr>
   );
 }
 
-function AddEditButton({ product, handleSubmit }: AddEditButtonProps) {
+function AddEditButton({ product, handleSubmit, isAdd }: AddEditButtonProps) {
   const [isAddEditModalOpen, setAddEditModalOpen] = 
     useState<boolean>(false);
 
   const [currentProduct, setCurrentProduct] = 
     useState<ProductData>(product);
 
-  // TODO fetch data from API for edit.
-  const defaultAddEditModalData: ProductData = {
-    category: "Fruits",
-    price: 0.01,
-    stocked: false,
-    name: "",
-  }
-
   const [addEditFormData, setAddEditFormData] = 
-    useState<ProductData>(defaultAddEditModalData)
+    useState<ProductData>(product)
 
   const handleOpenAddEditModal = () => {
     setAddEditModalOpen(true);
@@ -102,7 +110,7 @@ function AddEditButton({ product, handleSubmit }: AddEditButtonProps) {
     setAddEditModalOpen(false);
   }
 
-  const handleFormSubmit = (): void => {
+  const handleFormSubmit = () => {
     setAddEditFormData(currentProduct);
     handleSubmit(addEditFormData);
     handleCloseAddEditModal();
@@ -122,10 +130,15 @@ function AddEditButton({ product, handleSubmit }: AddEditButtonProps) {
   return (
     <>
       <div>
-        <Button variant="outline-secondary" onClick={handleOpenAddEditModal}>Add Product</Button>
+        <Button 
+          variant="outline-secondary" 
+          onClick={handleOpenAddEditModal}
+          aria-label={isAdd ? "Add product button" : "Edit product Button"}>
+            {isAdd ? "Add Product" : "Edit"}
+          </Button>
       </div>
 
-      {addEditFormData && addEditFormData.name && (
+      {isAdd && addEditFormData && addEditFormData.name && (
         <div className="msg-box msg-box--success">
           Added product: <b>{addEditFormData.name}</b>
           (Price <b>{addEditFormData.price}</b>, 
@@ -137,7 +150,7 @@ function AddEditButton({ product, handleSubmit }: AddEditButtonProps) {
       <Modal show={isAddEditModalOpen} onHide={handleCloseAddEditModal}>
         
         <Modal.Header closeButton>
-          <Modal.Title>Add a Product</Modal.Title>
+          <Modal.Title>{isAdd ? "Add": "Edit"} a Product</Modal.Title>
         </Modal.Header>
 
         <Modal.Body>
@@ -146,7 +159,7 @@ function AddEditButton({ product, handleSubmit }: AddEditButtonProps) {
             <Form.Control 
               placeholder="E.g. Apple" 
               aria-label="Product name input" 
-              defaultValue={defaultAddEditModalData.name}
+              defaultValue={addEditFormData.name}
               onChange={(event) => handleChange(event as any)}
               name="name"
               autoFocus/>
@@ -162,7 +175,7 @@ function AddEditButton({ product, handleSubmit }: AddEditButtonProps) {
                 step=".01"
                 placeholder="0.99" 
                 aria-label="Product price input"
-                defaultValue={defaultAddEditModalData.price}
+                defaultValue={addEditFormData.price}
                 onChange={(event) => handleChange(event as any)}
                 name="price"/>
             </InputGroup>
@@ -171,7 +184,7 @@ function AddEditButton({ product, handleSubmit }: AddEditButtonProps) {
           <Form.Group>
             <Form.Label>Category</Form.Label>
             <Form.Select 
-              defaultValue={defaultAddEditModalData.category} 
+              defaultValue={addEditFormData.category} 
               aria-label="Product category select" 
               onChange={(event) => handleChange(event as any)}
               name="category">
@@ -186,7 +199,7 @@ function AddEditButton({ product, handleSubmit }: AddEditButtonProps) {
             <Form.Check 
               type="checkbox" 
               label="In stock" 
-              defaultChecked={defaultAddEditModalData.stocked}
+              defaultChecked={addEditFormData.stocked}
               aria-label="In stock checknox"
               onChange={(event) => handleChange(event as any)}
               name="instock"/>
@@ -198,11 +211,7 @@ function AddEditButton({ product, handleSubmit }: AddEditButtonProps) {
           <Button variant="secondary" onClick={handleCloseAddEditModal}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={() => {
-            handleCloseAddEditModal()
-            handleFormSubmit()
-          }
-            }>
+          <Button variant="primary" onClick={handleFormSubmit}>
             Save Changes
           </Button>
         </Modal.Footer>
@@ -286,6 +295,11 @@ function FilterableProductTable({ products }: FilterableProductTableProps) {
   const [filterText, setFilterText] = useState("");
   const [inStockOnly, setInStockOnly] = useState(false);
 
+  function handleSubmit(product: ProductData) {
+    // TODO change when we link to backend.
+    console.log("Add product: " + product.name);
+  }
+
   return (
     <div>
       <SearchBar 
@@ -293,7 +307,10 @@ function FilterableProductTable({ products }: FilterableProductTableProps) {
         inStockOnly={inStockOnly} 
         onFilterTextChange={setFilterText}
         onInStockOnlyChange={setInStockOnly} />
-      <AddEditButton />
+      <AddEditButton 
+        product={emptyProduct}
+        handleSubmit={handleSubmit}
+        isAdd={true}/>
       <ProductTable 
         products={products} 
         filterText={filterText}

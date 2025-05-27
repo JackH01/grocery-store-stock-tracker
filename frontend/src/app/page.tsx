@@ -3,19 +3,15 @@
 // useState without getting an error.
 "use client"
 import { useState } from 'react';
-// import AddEditModal, {ProductData} from "./components/AddEditModal/AddEditModal";
 
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
 import Form from "react-bootstrap/Form";
 import InputGroup from "react-bootstrap/InputGroup";
-
-
-// TODO switch to bootstrap modals as the css seems to break mine.
-
+import FormControl from "react-bootstrap/FormControl"
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-// import "./components/Modal/Modal.css";
+import { FormControlProps } from 'react-bootstrap';
 
 export interface ProductData {
   category: "Fruits" | "Vegetables";
@@ -23,6 +19,8 @@ export interface ProductData {
   stocked: boolean;
   name: string;
 }
+
+
 
 type ProductCategoryRowProps = {
   category: string;
@@ -49,6 +47,11 @@ type FilterableProductTableProps = {
   products: ProductData[];
 }
 
+type AddEditButtonProps = {
+  product: ProductData;
+  handleSubmit: (product: ProductData) => void;
+}
+
 function ProductCategoryRow({ category }: ProductCategoryRowProps) {
   return (
     <tr>
@@ -73,9 +76,12 @@ function ProductRow({ product }: ProductRowProps) {
   );
 }
 
-function AddButton() {
+function AddEditButton({ product, handleSubmit }: AddEditButtonProps) {
   const [isAddEditModalOpen, setAddEditModalOpen] = 
     useState<boolean>(false);
+
+  const [currentProduct, setCurrentProduct] = 
+    useState<ProductData>(product);
 
   // TODO fetch data from API for edit.
   const defaultAddEditModalData: ProductData = {
@@ -96,20 +102,27 @@ function AddButton() {
     setAddEditModalOpen(false);
   }
 
-  const handleFormSubmit = (data: ProductData): void => {
-    setAddEditFormData(data);
+  const handleFormSubmit = (): void => {
+    setAddEditFormData(currentProduct);
+    handleSubmit(addEditFormData);
     handleCloseAddEditModal();
   }
 
-  const emptyProduct: ProductData = {
-    category: "Fruits", price: 0.01, stocked: true, name: ""
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const {name, value} = e.target;
+
+    if (e.target.type === "checkbox") {
+      const checkValue = e.target.checked;
+      setCurrentProduct((prev) => ({ ...prev, [name]: checkValue }));
+    } else {
+      setCurrentProduct((prev) => ({ ...prev, [name]: value }));
+    }
   }
 
   return (
     <>
       <div>
         <Button variant="outline-secondary" onClick={handleOpenAddEditModal}>Add Product</Button>
-        {/* <button onClick={handleOpenAddEditModal}>Add Product</button> */}
       </div>
 
       {addEditFormData && addEditFormData.name && (
@@ -133,7 +146,9 @@ function AddButton() {
             <Form.Control 
               placeholder="E.g. Apple" 
               aria-label="Product name input" 
-              defaultValue="Cantalope"
+              defaultValue={defaultAddEditModalData.name}
+              onChange={(event) => handleChange(event as any)}
+              name="name"
               autoFocus/>
           </Form.Group>
 
@@ -147,13 +162,19 @@ function AddButton() {
                 step=".01"
                 placeholder="0.99" 
                 aria-label="Product price input"
-                defaultValue="4.99"/>
+                defaultValue={defaultAddEditModalData.price}
+                onChange={(event) => handleChange(event as any)}
+                name="price"/>
             </InputGroup>
           </Form.Group>
 
           <Form.Group>
             <Form.Label>Category</Form.Label>
-            <Form.Select defaultValue="Vegetables" aria-label="Product category select">
+            <Form.Select 
+              defaultValue={defaultAddEditModalData.category} 
+              aria-label="Product category select" 
+              onChange={(event) => handleChange(event as any)}
+              name="category">
               {/* TODO allow user to create category and read these
               from db */}
               <option value="Fruits">Fruits</option>
@@ -165,12 +186,11 @@ function AddButton() {
             <Form.Check 
               type="checkbox" 
               label="In stock" 
-              defaultChecked={true}
-              aria-label="In stock checknox"/>
+              defaultChecked={defaultAddEditModalData.stocked}
+              aria-label="In stock checknox"
+              onChange={(event) => handleChange(event as any)}
+              name="instock"/>
           </Form.Group>
-          
-
-          
           
         </Modal.Body>
 
@@ -178,20 +198,17 @@ function AddButton() {
           <Button variant="secondary" onClick={handleCloseAddEditModal}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={handleCloseAddEditModal}>
+          <Button variant="primary" onClick={() => {
+            handleCloseAddEditModal()
+            handleFormSubmit()
+          }
+            }>
             Save Changes
           </Button>
         </Modal.Footer>
 
       </Modal>
-
     </>
-  //   <AddEditModal
-  //   isOpen={isAddEditModalOpen}
-  //   product={emptyProduct}
-  //   onSubmit={handleFormSubmit}
-  //   onClose={handleCloseAddEditModal}
-  // />
   )
 }
 
@@ -276,7 +293,7 @@ function FilterableProductTable({ products }: FilterableProductTableProps) {
         inStockOnly={inStockOnly} 
         onFilterTextChange={setFilterText}
         onInStockOnlyChange={setInStockOnly} />
-      <AddButton />
+      <AddEditButton />
       <ProductTable 
         products={products} 
         filterText={filterText}

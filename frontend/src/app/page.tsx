@@ -5,6 +5,7 @@
 import { useState } from 'react';
 
 import {AddEditButton} from "./components/AddEditButton";
+import {DeleteButton} from "./components/DeleteButton";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -58,8 +59,6 @@ function ProductCategoryRow({ category }: ProductCategoryRowProps) {
   );
 }
 
-
-
 function ProductRow({ product }: ProductRowProps) {
   const name = product.stocked ? product.name : 
     <span style={{ color: 'red' }}>
@@ -69,16 +68,25 @@ function ProductRow({ product }: ProductRowProps) {
   function handleSubmit(product: ProductData) {
     // TODO change when we link to backend.
     console.log("Edit product: " + product.name);
-}
+  }
+
+  function handleDelete(product: ProductData) {
+    // TODO change when we link to nackend.
+    console.log("Delete product: " + product.name);
+  }
 
   return (
     <tr>
       <td>{name}</td>
-      <td>{product.price}</td>
+      <td>£{product.price}</td>
       <td><AddEditButton
         product={product}
         handleSubmit={handleSubmit}
         isAdd={false}
+      /></td>
+      <td><DeleteButton
+        product={product}
+        handleDelete={handleDelete}
       /></td>
     </tr>
   );

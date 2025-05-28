@@ -1,3 +1,12 @@
 from django.db import models
 
 # Create your models here.
+class ProductCategory(models.Model):
+    name = models.CharField(max_length=120)
+
+class Product(models.Model):
+    name = models.CharField(max_length=120)
+    price = models.FloatField()
+    category = models.ForeignKey(ProductCategory, on_delete=models.CASCADE)
+    in_stock = models.BooleanField(default=True)
+

@@ -63,7 +63,7 @@ export function AddEditButton({ product, handleSubmit, isAdd }: AddEditButtonPro
         <div className="msg-box msg-box--success">
           Added product: <b>{addEditFormData.name}</b>
           (Price <b>{addEditFormData.price}</b>, 
-          Category: <b>{addEditFormData.category}</b>, 
+          Category: <b>{addEditFormData.category.name}</b>, 
           {addEditFormData.stocked ? "": "not "} in stock)
         </div>
       )}
@@ -105,7 +105,7 @@ export function AddEditButton({ product, handleSubmit, isAdd }: AddEditButtonPro
           <Form.Group>
             <Form.Label>Category</Form.Label>
             <Form.Select 
-              defaultValue={addEditFormData.category} 
+              defaultValue={addEditFormData.category.name} 
               aria-label="Product category select" 
               onChange={(event) => handleChange(event as any)}
               name="category">

@@ -2,30 +2,38 @@
 // it will assume it is a server component and we can't use
 // useState without getting an error.
 "use client"
-import { useState } from 'react';
+import { useState, Component } from 'react';
+import axios from "axios";
 
 import {AddEditButton} from "./components/AddEditButton";
 import {DeleteButton} from "./components/DeleteButton";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+interface CategoryData {
+  id?: number;
+  name: string;
+}
 
 export interface ProductData {
-  category: "Fruits" | "Vegetables";
+  id?: number;
+  category: CategoryData;
   price: number;
   stocked: boolean;
   name: string;
 }
 
+
+
 const emptyProduct: ProductData = {
-  category: "Fruits",
+  category: {name: "Fruits"},
   price: 0.01,
   stocked: false,
   name: "",
 }
 
 type ProductCategoryRowProps = {
-  category: string;
+  category: CategoryData;
 }
 
 type ProductRowProps = {
@@ -53,7 +61,7 @@ function ProductCategoryRow({ category }: ProductCategoryRowProps) {
   return (
     <tr>
       <th colSpan={2}>
-        {category}
+        {category.name}
       </th>
     </tr>
   );
@@ -94,7 +102,7 @@ function ProductRow({ product }: ProductRowProps) {
 
 function ProductTable({ products, filterText, inStockOnly }: ProductTableProps) {
   const rows: React.ReactElement[] = [];
-  let lastCategory: string = "";
+  let lastCategory: CategoryData = {name: ""};
 
   products.forEach((product) => {
     if (
@@ -111,7 +119,7 @@ function ProductTable({ products, filterText, inStockOnly }: ProductTableProps) 
       rows.push(
         <ProductCategoryRow
           category={product.category}
-          key={product.category} />
+          key={product.category.id} />
       );
     }
     rows.push(
@@ -191,14 +199,113 @@ function FilterableProductTable({ products }: FilterableProductTableProps) {
 }
 
 const PRODUCTS: ProductData[] = [
-  {category: "Fruits", price:  1.00, stocked: true, name: "Apple"},
-  {category: "Fruits", price: 1.00, stocked: true, name: "Dragonfruit"},
-  {category: "Fruits", price: 2.49, stocked: false, name: "Passionfruit"},
-  {category: "Vegetables", price: 2.00, stocked: true, name: "Spinach"},
-  {category: "Vegetables", price: 4.99, stocked: false, name: "Pumpkin"},
-  {category: "Vegetables", price: 0.99, stocked: true, name: "Peas"}
+  {category: {name: "Fruits"}, price:  1.00, stocked: true, name: "Apple"},
+  {category: {name: "Fruits"}, price: 1.00, stocked: true, name: "Dragonfruit"},
+  {category: {name: "Fruits"}, price: 2.49, stocked: false, name: "Passionfruit"},
+  {category: {name: "Vegetables"}, price: 2.00, stocked: true, name: "Spinach"},
+  {category: {name: "Vegetables"}, price: 4.99, stocked: false, name: "Pumpkin"},
+  {category: {name: "Vegetables"}, price: 0.99, stocked: true, name: "Peas"}
 ];
 
-export default function App() {
-  return <FilterableProductTable products={PRODUCTS} />;
+type refreshProductListProps = {
+  setProducts: (products: ProductData[]) => void;
 }
+
+
+// export default function App() {
+//   // TODO turn into class, think I can leave all (or most) of
+//   // functions as they are outside of the class?
+//   // TODO leave this here, just create a new class like in the tutorial.
+//   return <FilterableProductTable products={PRODUCTS} />;
+// }
+
+type AppStateProps = {
+  categoryList: CategoryData[];
+  productList: ProductData[];
+}
+
+class App extends Component {
+  constructor(props: {}) { // TODO : {} might not work, jut see.
+    super(props);
+    this.state = {
+      categoryList: [],
+      productList: [],
+    }
+  };
+
+  componentDidMount() {
+    this.refreshCategoryList();
+    this.refreshProductList();
+  }
+
+  // ---- HANDLING CATEGORIES ----
+  refreshCategoryList = () => {
+    axios
+      .get("/api/product_categories/")
+      .then((res) => this.setState({ categoryList: res.data }))
+      .catch((err) => console.log(err));
+  };
+
+  handleCategorySubmit = (category: CategoryData) => {
+    // If the id exists then we are editing, not creating
+    if (category.id) {
+      axios
+        .put(`/api/product_categories/${category.id}/`, category)
+        .then((res) => this.refreshCategoryList());
+      return;
+    }
+
+    axios
+      .post("/api/product_categories/", category)
+      .then((res) => this.refreshCategoryList());
+  };
+
+  handleCategoryDelete = (category: CategoryData) => {
+    axios
+      .delete(`/api/product_categories/${category.id}/`)
+      .then((res) => this.refreshCategoryList());
+  }
+
+  // ---- HANDLING PRODUCTS ----
+  refreshProductList = () => {
+    axios
+      .get("/api/products/")
+      .then((res) => this.setState({ productList: res.data }))
+      .catch((err) => console.log(err));
+  };
+
+  handleProductSubmit = (product: ProductData) => {
+    // If the id exists then we are editing, not creating
+    if (product.id) {
+      axios
+        .put(`/api/products/${product.id}/`, product)
+        .then((res) => this.refreshProductList());
+      return;
+    }
+
+    axios
+      .post("/api/products/", product)
+      .then((res) => this.refreshProductList());
+  };
+
+  handleProductDelete = (product: ProductData) => {
+    axios
+      .delete(`/api/products/${product.id}/`)
+      .then((res) => this.refreshProductList());
+  }
+
+
+  render() {
+    // For some reason calling this.state.productList gives an error?
+    // This is a bit of a hacky work around.
+    const categories = (this.state as any).categoryList;
+    const products = (this.state as any).productList;
+    console.log(products);
+    // TODO pass these through, along with this(?) so that we
+    // can use the handle functions?
+    return <FilterableProductTable products={products} />;
+  }
+  
+}
+
+export default App;

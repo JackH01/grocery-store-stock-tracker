@@ -5,7 +5,7 @@ class ProductCategoryAdmin(admin.ModelAdmin):
     list_display = ("name",)
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("name", "price", "category", "in_stock")
+    list_display = ("name", "price", "category", "stocked")
 
 # Register your models here.
 admin.site.register(ProductCategory, ProductCategoryAdmin)

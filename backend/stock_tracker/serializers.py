@@ -11,7 +11,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ("id", "name", "price", "category", "in_stock")
+        fields = ("id", "name", "price", "category", "stocked")
 
     # Specifies the categories name instead of id.
     def get_category(self, instance):

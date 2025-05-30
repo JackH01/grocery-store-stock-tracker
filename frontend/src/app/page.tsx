@@ -17,7 +17,7 @@ interface CategoryData {
 
 export interface ProductData {
   id?: number;
-  category: CategoryData;
+  category: string;
   price: number;
   stocked: boolean;
   name: string;
@@ -26,14 +26,14 @@ export interface ProductData {
 
 
 const emptyProduct: ProductData = {
-  category: {name: "Fruits"},
+  category: "Fruits",
   price: 0.01,
   stocked: false,
   name: "",
 }
 
 type ProductCategoryRowProps = {
-  category: CategoryData;
+  category: string;
 }
 
 type ProductRowProps = {
@@ -61,7 +61,7 @@ function ProductCategoryRow({ category }: ProductCategoryRowProps) {
   return (
     <tr>
       <th colSpan={2}>
-        {category.name}
+        {category}
       </th>
     </tr>
   );
@@ -102,7 +102,7 @@ function ProductRow({ product }: ProductRowProps) {
 
 function ProductTable({ products, filterText, inStockOnly }: ProductTableProps) {
   const rows: React.ReactElement[] = [];
-  let lastCategory: CategoryData = {name: ""};
+  let lastCategory: string = "";
 
   products.forEach((product) => {
     if (
@@ -119,7 +119,7 @@ function ProductTable({ products, filterText, inStockOnly }: ProductTableProps) 
       rows.push(
         <ProductCategoryRow
           category={product.category}
-          key={product.category.id} />
+          key={product.category} />
       );
     }
     rows.push(
@@ -198,15 +198,6 @@ function FilterableProductTable({ products }: FilterableProductTableProps) {
   );
 }
 
-const PRODUCTS: ProductData[] = [
-  {category: {name: "Fruits"}, price:  1.00, stocked: true, name: "Apple"},
-  {category: {name: "Fruits"}, price: 1.00, stocked: true, name: "Dragonfruit"},
-  {category: {name: "Fruits"}, price: 2.49, stocked: false, name: "Passionfruit"},
-  {category: {name: "Vegetables"}, price: 2.00, stocked: true, name: "Spinach"},
-  {category: {name: "Vegetables"}, price: 4.99, stocked: false, name: "Pumpkin"},
-  {category: {name: "Vegetables"}, price: 0.99, stocked: true, name: "Peas"}
-];
-
 type refreshProductListProps = {
   setProducts: (products: ProductData[]) => void;
 }
@@ -218,11 +209,6 @@ type refreshProductListProps = {
 //   // TODO leave this here, just create a new class like in the tutorial.
 //   return <FilterableProductTable products={PRODUCTS} />;
 // }
-
-type AppStateProps = {
-  categoryList: CategoryData[];
-  productList: ProductData[];
-}
 
 class App extends Component {
   constructor(props: {}) { // TODO : {} might not work, jut see.
@@ -300,7 +286,6 @@ class App extends Component {
     // This is a bit of a hacky work around.
     const categories = (this.state as any).categoryList;
     const products = (this.state as any).productList;
-    console.log(products);
     // TODO pass these through, along with this(?) so that we
     // can use the handle functions?
     return <FilterableProductTable products={products} />;

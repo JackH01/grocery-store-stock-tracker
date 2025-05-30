@@ -67,7 +67,7 @@ export function DeleteButton({ product, handleDelete }: DeleteButtonProps) {
                             <tr>
                                 <td>{name}</td>
                                 <td>£{product.price}</td>
-                                <td>{product.category.name}</td>
+                                <td>{product.category}</td>
                             </tr>
                         </tbody>
                     </table>

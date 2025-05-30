@@ -198,11 +198,6 @@ function FilterableProductTable({ products }: FilterableProductTableProps) {
   );
 }
 
-type refreshProductListProps = {
-  setProducts: (products: ProductData[]) => void;
-}
-
-
 // export default function App() {
 //   // TODO turn into class, think I can leave all (or most) of
 //   // functions as they are outside of the class?

@@ -63,7 +63,7 @@ export function AddEditButton({ product, handleSubmit, isAdd }: AddEditButtonPro
         <div className="msg-box msg-box--success">
           Added product: <b>{addEditFormData.name}</b>
           (Price <b>{addEditFormData.price}</b>, 
-          Category: <b>{addEditFormData.category.name}</b>, 
+          Category: <b>{addEditFormData.category}</b>, 
           {addEditFormData.stocked ? "": "not "} in stock)
         </div>
       )}
@@ -105,14 +105,14 @@ export function AddEditButton({ product, handleSubmit, isAdd }: AddEditButtonPro
           <Form.Group>
             <Form.Label>Category</Form.Label>
             <Form.Select 
-              defaultValue={addEditFormData.category.name} 
+              defaultValue={addEditFormData.category} 
               aria-label="Product category select" 
               onChange={(event) => handleChange(event as any)}
               name="category">
               {/* TODO allow user to create category and read these
               from db */}
-              <option value="Fruits">Fruits</option>
-              <option value="Vegetables">Vegetables</option>
+              <option value="Fruit">Fruit</option>
+              <option value="Vegetable" >Vegetable</option>
             </Form.Select>
           </Form.Group>
 
